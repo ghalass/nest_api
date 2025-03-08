@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -12,23 +11,23 @@ export class UserService {
   }
 
   async createUser(data: { email: string; password: string; name: string }) {
-    // Check if the user already exists by email
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: data.email },
-    });
-
-    if (existingUser) {
-      throw new Error('User with this email already exists');
-    }
-
     // If no existing user is found, create a new user
-    return this.prisma.user.create({
-      data,
-    });
+    return this.prisma.user.create({ data });
   }
 
-  async create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async toogleActivateAccount(id: number) {
+    // check if user exist
+    const existingUser = await this.prisma.user.findUnique({ where: { id } });
+    if (!existingUser) throw new NotFoundException("Compte n'existe pas.");
+    // toogleActivateAccount
+    const existingUserUp = await this.prisma.user.update({
+      where: { id }, // Spécifie l'ID de l'utilisateur à mettre à jour
+      data: { active: !existingUser.active }, // Met à jour la valeur de "active"
+    });
+    // remove passwor from user
+    const { password: _, ...others } = existingUserUp;
+
+    return others;
   }
 
   async findAll() {

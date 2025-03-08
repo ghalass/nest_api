@@ -7,28 +7,45 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { RegisterDto } from './dto/register.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async validateUser(email: string, password: string) {
     const user = await this.userService.findByEmail(email);
     if (user && (await bcrypt.compare(password, user.password))) {
+      // check if user account is active
+      if (!user.active) {
+        throw new UnauthorizedException(
+          'Contactez un administrateur pour activer votre compte.',
+        );
+      }
       const { password, ...result } = user; // Exclude password from response
       return result;
     }
+
     throw new UnauthorizedException('Invalid credentials');
   }
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password); // 👈 Now it exists
-    const payload = { email: user.email };
+    const payload = { email: user.email, sub: user.id };
+
+    const loggedUser = await this.prisma.user.update({
+      where: { email },
+      data: { lastVisite: new Date() },
+    });
+    const { password: _, ...others } = loggedUser;
+
     return {
       access_token: this.jwtService.sign(payload),
+      user: others,
     };
   }
 
@@ -54,8 +71,13 @@ export class AuthService {
 
     // Create and return a JWT token
     const payload = { email: newUser.email, sub: newUser.id };
+
+    // Create a new object excluding the password
+    const { password: _, ...userWithoutPassword } = newUser;
+
     return {
       access_token: this.jwtService.sign(payload),
+      user: userWithoutPassword,
     };
   }
 }

@@ -25,17 +25,19 @@ export class RolesGuard implements CanActivate {
     const user = request.user; // Extract the user from the request
     // check if user exist
     if (!user) {
-      throw new ForbiddenException('User not found');
+      throw new ForbiddenException('Utilisateur non trouvé');
     }
     // check if user is active
     if (!user?.active) {
-      throw new ForbiddenException('User not active');
+      throw new ForbiddenException(
+        'Contactez un administrateur pour activer votre compte.',
+      );
     }
 
     // Check if the user's role is one of the required roles
     if (!requiredRoles.includes(user.role)) {
       throw new ForbiddenException(
-        'You do not have permission to access this resource',
+        "Vous n'avez pas l'autorisation d'accéder à cette ressource",
       );
     }
 
