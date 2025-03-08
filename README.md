@@ -1,3 +1,10 @@
 - npm install --save @nestjs/typeorm typeorm mysql2
 - npm install nestjs-class-validator class-validator class-transformer
 - npm install @nestjs/config
+- npm install prisma --save-dev
+- npx prisma init
+- npx prisma migrate dev --name init
+- npx prisma generate
+- npm install @prisma/client
+- npm install @nestjs/jwt @nestjs/passport passport passport-jwt bcrypt
+- npm install -D @types/bcrypt

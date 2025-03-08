@@ -7,6 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeparcsModule } from './typeparcs/typeparcs.module';
 import { ParcsModule } from './parcs/parcs.module';
 import { EnginsModule } from './engins/engins.module';
+import { UserModule } from './user/user.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import { EnginsModule } from './engins/engins.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    PrismaModule,
     ConfigModule.forRoot({
       isGlobal: true, // Permet d'utiliser partout sans réimporter
     }),
@@ -27,6 +31,8 @@ import { EnginsModule } from './engins/engins.module';
     TypeparcsModule,
     ParcsModule,
     EnginsModule,
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
