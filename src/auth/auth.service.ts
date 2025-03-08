@@ -41,11 +41,14 @@ export class AuthService {
       where: { email },
       data: { lastVisite: new Date() },
     });
-    const { password: _, ...others } = loggedUser;
+    const { password: _, ...userWithoutPassword } = loggedUser;
 
     return {
-      access_token: this.jwtService.sign(payload),
-      user: others,
+      token: this.jwtService.sign(payload),
+      name: userWithoutPassword.name,
+      active: userWithoutPassword.active,
+      email: userWithoutPassword.email,
+      role: userWithoutPassword.role,
     };
   }
 
@@ -76,8 +79,11 @@ export class AuthService {
     const { password: _, ...userWithoutPassword } = newUser;
 
     return {
-      access_token: this.jwtService.sign(payload),
-      user: userWithoutPassword,
+      token: this.jwtService.sign(payload),
+      name: userWithoutPassword.name,
+      active: userWithoutPassword.active,
+      email: userWithoutPassword.email,
+      role: userWithoutPassword.role,
     };
   }
 }
